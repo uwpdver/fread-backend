@@ -1,90 +1,62 @@
-const express = require('express')
-var axios = require('axios')
-var OAuth = require('oauth');
+const express = require("express");
+const OAuth = require("oauth");
+const cors = require("cors");
+const app = express();
 
-const app = express()
+app.use(cors());
+app.use(express.json());
 
-let notes = [
-  {
-    id: 1,
-    content: "HTML is easy",
-    date: "2019-05-30T17:30:31.098Z",
-    important: true
-  },
-  {
-    id: 2,
-    content: "Browser can execute only Javascript",
-    date: "2019-05-30T18:39:34.091Z",
-    important: false
-  },
-  {
-    id: 3,
-    content: "GET and POST are the most important methods of HTTP protocol",
-    date: "2019-05-30T19:20:14.298Z",
-    important: true
-  }
-]
+const CLIENT_ID = "999999350";
+const CLIENT_SECRET = "W3k5ED46RSJme0mOhaRQXYe1mAdZwi3w";
+const REDIRECT_URI = "http://localhost:3000/oauth";
 
-app.get('/', (req, res) => {
-  res.send('<h1>Hello World!</h1>')
-})
-
-app.get('/api/notes', (req, res) => {
-  res.json(notes)
-})
-
-app.get('/oauth/inoreader/:code', (req, res) => {
-
-  const AUTHORIZATION_CODE = req.params.code
-  const REDIRECT_URI = 'http://localhost:3000/oauth'
-  const CLIENT_ID = '999999350'
-  const CLIENT_SECRET = 'W3k5ED46RSJme0mOhaRQXYe1mAdZwi3w'
-  const url = 'https://www.inoreader.com/oauth2/token'
-
-  axios({
-    method: 'post',
-    url: url,
-    params: {
-      client_id: CLIENT_ID,
-      client_secret: CLIENT_SECRET,
-      code: AUTHORIZATION_CODE,
-      grant_type: 'authorization_code'
+app.get("/inoreader/authURI", (request, response) => {
+  const OPTIONAL_SCOPES = "read write";
+  const CSRF_PROTECTION_STRING = "111";
+  const authURI = `https://www.inoreader.com/oauth2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${OPTIONAL_SCOPES}&state=${CSRF_PROTECTION_STRING}`;
+  return response.json({
+    message: "create success",
+    data: {
+      auth_uri: authURI,
     },
-    headers: {
-      accept: 'application/json',
-      'Access-Control-Allow-Origin': '*'
-    }
-  }).then(
-    (response) => {
-      access_token = response.data.access_token
-      res.redirect('/success');
+  });
+});
+
+app.get("/inoreader/token", (request, response) => {
+  const { code = "" } = request.query;
+
+  var OAuth2 = OAuth.OAuth2;
+  var oauth2 = new OAuth2(
+    CLIENT_ID,
+    CLIENT_SECRET,
+    "https://www.inoreader.com/",
+    "oauth2/auth",
+    "oauth2/token",
+    null
+  );
+  oauth2.getOAuthAccessToken(
+    code,
+    {
+      redirect_uri: REDIRECT_URI,
+      grant_type: "authorization_code",
     },
-    (error) => {
-      console.log(error.data);
+    function (e, access_token, refresh_token, results) {
+      if (e) {
+        console.log("e: ", e);
+      } else {
+        console.log("bearer: ", access_token);
+        console.log(typeof response.json);
+        return response.json({
+          message: "create success",
+          data: { token: access_token },
+        });
+      }
     }
-  )
+  );
+});
 
-  res.json(notes)
-})
-
-app.get('/api/notes/:id', (req, res) => {
-  const id = req.params.id
-  const note = notes.find(note => note.id === parseInt(id, 10))
-  if (note) {
-    res.json(note)
-  } else {
-    res.status(404).end()
-  }
-})
-
-app.delete('/api/notes/:id', (req, res) => {
-  const id = req.params.id
-  notes = notes.filter(note => note.id === parseInt(id, 10))
-  res.status(204).end()
-})
-
-const PORT = 3888
+const PORT = 3777;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
+  console.log(`Server running on port ${PORT}`);
+});
