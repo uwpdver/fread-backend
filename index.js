@@ -1,6 +1,7 @@
 const express = require("express");
 const OAuth = require("oauth");
 const cors = require("cors");
+const querystring = require("querystring");
 const app = express();
 
 app.use(cors());
@@ -11,9 +12,15 @@ const CLIENT_SECRET = "W3k5ED46RSJme0mOhaRQXYe1mAdZwi3w";
 const REDIRECT_URI = "http://localhost:3000/oauth";
 
 app.get("/inoreader/authURI", (request, response) => {
-  const OPTIONAL_SCOPES = "read write";
   const CSRF_PROTECTION_STRING = "111";
-  const authURI = `https://www.inoreader.com/oauth2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${OPTIONAL_SCOPES}&state=${CSRF_PROTECTION_STRING}`;
+  const qs = querystring.stringify({
+    client_id: CLIENT_ID,
+    redirect_uri: REDIRECT_URI,
+    response_type: 'code',
+    scope: 'read write',
+    state: CSRF_PROTECTION_STRING,
+  })
+  const authURI = `https://www.innoreader.com/oauth2/auth?${qs}`;
   return response.json({
     message: "create success",
     data: {
@@ -29,7 +36,7 @@ app.get("/inoreader/token", (request, response) => {
   var oauth2 = new OAuth2(
     CLIENT_ID,
     CLIENT_SECRET,
-    "https://www.inoreader.com/",
+    "https://www.innoreader.com/",
     "oauth2/auth",
     "oauth2/token",
     null
