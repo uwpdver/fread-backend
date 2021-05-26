@@ -9,11 +9,12 @@ app.use(express.json());
 const CLIENT_ID = "999999350";
 const CLIENT_SECRET = "W3k5ED46RSJme0mOhaRQXYe1mAdZwi3w";
 const REDIRECT_URI = "http://localhost:3000/oauth";
+const INOREADER_DOMAIN = "https://www.innoreader.com";
 
 app.get("/inoreader/authURI", (request, response) => {
   const OPTIONAL_SCOPES = "read write";
   const CSRF_PROTECTION_STRING = "111";
-  const authURI = `https://www.inoreader.com/oauth2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${OPTIONAL_SCOPES}&state=${CSRF_PROTECTION_STRING}`;
+  const authURI = `${INOREADER_DOMAIN}/oauth2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${OPTIONAL_SCOPES}&state=${CSRF_PROTECTION_STRING}`;
   return response.json({
     message: "create success",
     data: {
@@ -29,7 +30,7 @@ app.get("/inoreader/token", (request, response) => {
   var oauth2 = new OAuth2(
     CLIENT_ID,
     CLIENT_SECRET,
-    "https://www.inoreader.com/",
+    `${INOREADER_DOMAIN}/`,
     "oauth2/auth",
     "oauth2/token",
     null
@@ -43,6 +44,7 @@ app.get("/inoreader/token", (request, response) => {
     function (e, access_token, refresh_token, results) {
       if (e) {
         console.log("e: ", e);
+        return response.status(500).send(e.code);
       } else {
         console.log("bearer: ", access_token);
         console.log(typeof response.json);
