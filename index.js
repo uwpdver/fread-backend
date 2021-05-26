@@ -14,7 +14,7 @@ const INOREADER_DOMAIN = "https://www.innoreader.com";
 
 app.get("/inoreader/authURI", (request, response) => {
   const CSRF_PROTECTION_STRING = "111";
-  const authURI = `${INOREADER_DOMAIN}/oauth2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${OPTIONAL_SCOPES}&state=${CSRF_PROTECTION_STRING}`;
+  const authURI = `${INOREADER_DOMAIN}/oauth2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=read write&state=${CSRF_PROTECTION_STRING}`;
   return response.json({
     message: "create success",
     data: {
