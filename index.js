@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const OAuth = require("oauth");
 const cors = require("cors");
@@ -7,10 +8,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const CLIENT_ID = "999999350";
-const CLIENT_SECRET = "W3k5ED46RSJme0mOhaRQXYe1mAdZwi3w";
-const REDIRECT_URI = "http://localhost:3000/oauth";
-const INOREADER_DOMAIN = "https://www.innoreader.com";
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const REDIRECT_URI = process.env.REDIRECT_URI;
+const INOREADER_DOMAIN = process.env.INOREADER_DOMAIN;
 
 app.get("/inoreader/authURI", (request, response) => {
   const CSRF_PROTECTION_STRING = "111";
@@ -57,7 +58,7 @@ app.get("/inoreader/token", (request, response) => {
   );
 });
 
-const PORT = 3777;
+const PORT = process.env.PORT;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
